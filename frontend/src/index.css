@@ -2,33 +2,172 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================
+   Sharp, Modern & Professional Streamify Chat Theme
+   ========================================================= */
+
+.str-chat {
+  --str-chat-font-family: inherit;
+  --str-chat-border-radius: 4px;
+  --str-chat-bubble-border-radius: 6px;
+  height: 100% !important;
+  width: 100% !important;
+}
+
 .str-chat__channel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(to bottom, #c9e8c9, #b7e7bb);
-  height: 100%;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  width: 100% !important;
+  background: transparent !important;
 }
 
 .str-chat__container {
-  max-width: 1200px;
-  width: 100%;
-  height: 80% !important;
-  margin: 0 auto !important;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  max-width: 100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: var(--fallback-b1, oklch(var(--b1))) !important;
 }
 
+.str-chat__main-panel {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Chat Header */
+.str-chat__header-channel {
+  background-color: var(--fallback-b2, oklch(var(--b2))) !important;
+  border-bottom: 1px solid var(--fallback-b3, oklch(var(--b3))) !important;
+  padding: 0.5rem 1rem !important;
+  min-height: 3.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.str-chat__header-title {
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  color: var(--fallback-bc, oklch(var(--bc))) !important;
+}
+
+.str-chat__avatar {
+  border-radius: 4px !important;
+}
+
+.str-chat__avatar-image {
+  border-radius: 4px !important;
+}
+
+/* Chat Message List Background & Spacing */
 .str-chat__list {
-  background-color: #ffffff;
-  padding: 12px;
+  background-color: var(--fallback-b1, oklch(var(--b1))) !important;
+  padding: 0.5rem 0.85rem !important;
+  flex-grow: 1 !important;
 }
 
 .str-chat__list-notifications {
-  display: none;
+  display: none !important;
 }
 
+/* Tight Message Spacing */
+.str-chat__message-simple {
+  margin-bottom: 0.2rem !important;
+}
+
+/* Message Bubbles - Sharp Corners, Tight Padding & Reasonable Max Width */
+.str-chat__message-bubble {
+  border-radius: 6px !important;
+  padding: 0.4rem 0.7rem !important;
+  max-width: 620px !important;
+}
+
+/* Quoted / Reply Message Styling - Hide Inner Avatar & Provide Clean Separation */
+.str-chat__quoted-message-bubble .str-chat__avatar,
+.str-chat__quoted-message-avatar,
+.str-chat__quoted-message .str-chat__avatar,
+.str-chat__message-quoted .str-chat__avatar,
+.str-chat__quoted-message-preview .str-chat__avatar {
+  display: none !important;
+}
+
+.str-chat__quoted-message-bubble,
+.str-chat__quoted-message,
+.str-chat__message-quoted {
+  background-color: var(--fallback-b3, oklch(var(--b3) / 0.5)) !important;
+  border-left: 3px solid var(--fallback-p, oklch(var(--p))) !important;
+  border-radius: 4px !important;
+  padding: 0.3rem 0.6rem !important;
+  margin-bottom: 0.45rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  box-shadow: none !important;
+}
+
+.str-chat__quoted-message-bubble *,
+.str-chat__quoted-message *,
+.str-chat__message-quoted * {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.str-chat__quoted-message-text {
+  font-size: 0.82rem !important;
+  line-height: 1.3 !important;
+  opacity: 0.88 !important;
+  color: inherit !important;
+}
+
+/* Message Reactions Bar */
+.str-chat__message-reactions,
+.str-chat__reaction-list {
+  margin-top: 0.15rem !important;
+  margin-bottom: 0.15rem !important;
+  padding: 0.1rem 0.4rem !important;
+  border-radius: 4px !important;
+  font-size: 0.75rem !important;
+}
+
+/* Image Attachment Styling */
+.str-chat__message-attachment img {
+  max-height: 240px !important;
+  max-width: 100% !important;
+  object-fit: cover !important;
+  border-radius: 4px !important;
+}
+
+/* Bottom Message Input Bar */
 .str-chat__message-input {
-  border-top: 1px solid #ddd;
+  background-color: var(--fallback-b2, oklch(var(--b2))) !important;
+  border-top: 1px solid var(--fallback-b3, oklch(var(--b3))) !important;
+  padding: 0.4rem 0.65rem !important;
+}
+
+.str-chat__message-input-inner {
+  background-color: var(--fallback-b1, oklch(var(--b1))) !important;
+  border-radius: 4px !important;
+  border: 1px solid var(--fallback-b3, oklch(var(--b3))) !important;
+  padding: 0.2rem 0.55rem !important;
+}
+
+.str-chat__textarea textarea {
+  color: var(--fallback-bc, oklch(var(--bc))) !important;
+  font-size: 0.9rem !important;
+}
+
+/* Send Button */
+.str-chat__send-button {
+  background-color: var(--fallback-p, oklch(var(--p))) !important;
+  color: var(--fallback-pc, oklch(var(--pc))) !important;
+  border-radius: 4px !important;
+  padding: 0.35rem 0.55rem !important;
 }

@@ -14,6 +14,8 @@ import { capitialize } from "../lib/utils";
 import FriendCard, { getLanguageFlag } from "../components/FriendCard";
 import NoFriendsFound from "../components/NoFriendsFound";
 
+import Avatar from "../components/Avatar";
+
 const HomePage = () => {
   const queryClient = useQueryClient();
   const [outgoingRequestsIds, setOutgoingRequestsIds] = useState(new Set());
@@ -40,12 +42,14 @@ const HomePage = () => {
 
   useEffect(() => {
     const outgoingIds = new Set();
-    if (outgoingFriendReqs && outgoingFriendReqs.length > 0) {
+    if (Array.isArray(outgoingFriendReqs)) {
       outgoingFriendReqs.forEach((req) => {
-        outgoingIds.add(req.recipient._id);
+        if (req?.recipient?._id) {
+          outgoingIds.add(req.recipient._id);
+        }
       });
-      setOutgoingRequestsIds(outgoingIds);
     }
+    setOutgoingRequestsIds(outgoingIds);
   }, [outgoingFriendReqs]);
 
   return (
@@ -108,8 +112,8 @@ const HomePage = () => {
                   >
                     <div className="card-body p-5 space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="avatar size-16 rounded-full">
-                          <img src={user.profilePic} alt={user.fullName} />
+                        <div className="avatar size-16 rounded-full overflow-hidden">
+                          <Avatar src={user.profilePic} name={user.fullName} className="size-16 rounded-full" />
                         </div>
 
                         <div>

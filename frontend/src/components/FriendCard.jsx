@@ -3,6 +3,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { acceptFriendRequest } from "../lib/api";
 import { LANGUAGE_TO_FLAG } from "../constants";
 
+import Avatar from "./Avatar";
+
 const FriendCard = ({ friend, requestId, isPendingRequest }) => {
   const queryClient = useQueryClient();
   const { mutate: acceptRequest } = useMutation({
@@ -18,10 +20,10 @@ const FriendCard = ({ friend, requestId, isPendingRequest }) => {
       <div className="card-body p-4">
         {/* USER INFO */}
         <div className="flex items-center gap-3 mb-3">
-          <div className="avatar size-12">
-            <img src={friend.profilePic} alt={friend.fullName} />
+          <div className="avatar size-12 rounded-full overflow-hidden">
+            <Avatar src={friend?.profilePic} name={friend?.fullName} className="size-12 rounded-full" />
           </div>
-          <h3 className="font-semibold truncate">{friend.fullName}</h3>
+          <h3 className="font-semibold truncate">{friend?.fullName}</h3>
         </div>
 
         <div className="flex flex-wrap gap-1.5 mb-3">

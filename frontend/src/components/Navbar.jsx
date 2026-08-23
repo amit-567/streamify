@@ -4,16 +4,12 @@ import { BellIcon, LogOutIcon, ShipWheelIcon } from "lucide-react";
 import ThemeSelector from "./ThemeSelector";
 import useLogout from "../hooks/useLogout";
 
+import Avatar from "./Avatar";
+
 const Navbar = () => {
   const { authUser } = useAuthUser();
   const location = useLocation();
   const isChatPage = location.pathname?.startsWith("/chat");
-
-  // const queryClient = useQueryClient();
-  // const { mutate: logoutMutation } = useMutation({
-  //   mutationFn: logout,
-  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
-  // });
 
   const { logoutMutation } = useLogout();
 
@@ -44,11 +40,11 @@ const Navbar = () => {
           {/* TODO */}
           <ThemeSelector />
 
-          <div className="avatar">
-            <div className="w-9 rounded-full">
-              <img src={authUser?.profilePic} alt="User Avatar" rel="noreferrer" />
+          <Link to="/profile" className="avatar hover:opacity-80 transition-opacity ml-2">
+            <div className="w-9 rounded-full ring-2 ring-primary/30 overflow-hidden">
+              <Avatar src={authUser?.profilePic} name={authUser?.fullName} className="w-9 h-9 rounded-full" />
             </div>
-          </div>
+          </Link>
 
           {/* Logout button */}
           <button className="btn btn-ghost btn-circle" onClick={logoutMutation}>

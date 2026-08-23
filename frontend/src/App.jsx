@@ -105,10 +105,23 @@ const App = () => {
           element={
             isAuthenticated ? (
               !isOnboarded ? (
-                <OnboardingPage />
+                <OnboardingPage isEdit={false} />
               ) : (
                 <Navigate to="/" />
               )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            isAuthenticated ? (
+              <Layout showSidebar={true}>
+                <OnboardingPage isEdit={true} />
+              </Layout>
             ) : (
               <Navigate to="/login" />
             )

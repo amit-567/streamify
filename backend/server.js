@@ -11,30 +11,35 @@ import chatRoutes from "./routes/chat.route.js";
 import { connectDB } from "./lib/db.js";
 
 const app = express();
-const PORT = process.env.PORT;
-
+const PORT = process.env.PORT || 5001;
 const __dirname = path.resolve();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());
 
-app.get("/", (req, res) => {
-  res.json({ Hello: "test123" });
-});
-
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chat", chatRoutes);
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  res
+    .status(200)
+    .json({ status: "ok", message: "Streamify API is running correctly." });
+});
 
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
-  });
-}
+// Root endpoint
+app.get("/", (req, res) => {
+  res.send("Streamify API is Running Correctly.");
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

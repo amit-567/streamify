@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import useAuthUser from "../hooks/useAuthUser";
 import { useQuery } from "@tanstack/react-query";
 import { getStreamToken } from "../lib/api";
@@ -15,9 +15,9 @@ import {
 } from "stream-chat-react";
 import { StreamChat } from "stream-chat";
 import toast from "react-hot-toast";
+import { VideoIcon } from "lucide-react";
 
 import ChatLoader from "../components/ChatLoader";
-import CallButton from "../components/CallButton";
 
 const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
 
@@ -33,52 +33,64 @@ const ChatPage = () => {
   const { data: tokenData } = useQuery({
     queryKey: ["streamToken"],
     queryFn: getStreamToken,
-    enabled: !!authUser, // this will run only when authUser is available
+    enabled: !!authUser,
   });
 
   useEffect(() => {
+    let isSubscribed = true;
+
     const initChat = async () => {
-      if (!tokenData?.token || !authUser) return;
+      if (!tokenData?.token || !authUser?._id || !targetUserId) return;
 
       try {
-        console.log("Initializing stream chat client...");
-
         const client = StreamChat.getInstance(STREAM_API_KEY);
+        const userIdStr = authUser._id.toString();
+
+        if (client.user || client.userID) {
+          await client.disconnectUser();
+        }
 
         await client.connectUser(
           {
-            id: authUser._id,
+            id: userIdStr,
             name: authUser.fullName,
             image: authUser.profilePic,
           },
           tokenData.token
         );
 
-        //
-        const channelId = [authUser._id, targetUserId].sort().join("-");
+        if (!isSubscribed) return;
 
-        // you and me
-        // if i start the chat => channelId: [myId, yourId]
-        // if you start the chat => channelId: [yourId, myId]  => [myId,yourId]
+        const channelId = [userIdStr, targetUserId.toString()].sort().join("-");
 
         const currChannel = client.channel("messaging", channelId, {
-          members: [authUser._id, targetUserId],
+          members: [userIdStr, targetUserId.toString()],
         });
 
         await currChannel.watch();
 
-        setChatClient(client);
-        setChannel(currChannel);
+        if (isSubscribed) {
+          setChatClient(client);
+          setChannel(currChannel);
+        }
       } catch (error) {
         console.error("Error initializing chat:", error);
-        toast.error("Could not connect to chat. Please try again.");
+        if (isSubscribed) {
+          toast.error("Could not connect to chat. Please try again.");
+        }
       } finally {
-        setLoading(false);
+        if (isSubscribed) {
+          setLoading(false);
+        }
       }
     };
 
     initChat();
-  }, [tokenData, authUser, targetUserId]);
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [tokenData?.token, authUser?._id, targetUserId]);
 
   const handleVideoCall = () => {
     if (channel) {
@@ -88,18 +100,26 @@ const ChatPage = () => {
         text: `I've started a video call. Join me here: ${callUrl}`,
       });
 
-      toast.success("Video call link sent successfully!");
+      toast.success("Video call invitation sent!");
     }
   };
 
   if (loading || !chatClient || !channel) return <ChatLoader />;
 
   return (
-    <div className="h-[93vh]">
+    <div className="h-[calc(100vh-4rem)] w-full flex flex-col bg-base-100 overflow-hidden">
       <Chat client={chatClient}>
         <Channel channel={channel}>
-          <div className="w-full relative">
-            <CallButton handleVideoCall={handleVideoCall} />
+          <div className="w-full h-full flex flex-col relative">
+            <div className="absolute right-4 top-3.5 z-20">
+              <button
+                onClick={handleVideoCall}
+                className="btn btn-primary btn-sm gap-2 shadow-sm rounded-md"
+              >
+                <VideoIcon className="size-4" />
+                <span className="hidden sm:inline font-semibold">Start Video Call</span>
+              </button>
+            </div>
             <Window>
               <ChannelHeader />
               <MessageList />

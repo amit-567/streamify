@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ShipWheelIcon } from "lucide-react";
-import { Link } from "react-router";
+import { EyeIcon, EyeOffIcon, ShipWheelIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import useSignUp from "../hooks/useSignUp";
 
@@ -10,6 +10,7 @@ const SignUpPage = () => {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   // This is how we did it at first, without using our custom hook
   // const queryClient = useQueryClient();
@@ -97,14 +98,24 @@ const SignUpPage = () => {
                     <label className="label">
                       <span className="label-text">Password</span>
                     </label>
-                    <input
-                      type="password"
-                      placeholder="********"
-                      className="input input-bordered w-full"
-                      value={signupData.password}
-                      onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-                      required
-                    />
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="input input-bordered w-full pr-10"
+                        value={signupData.password}
+                        onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/60 hover:text-base-content"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label="Toggle password visibility"
+                      >
+                        {showPassword ? <EyeOffIcon className="size-5" /> : <EyeIcon className="size-5" />}
+                      </button>
+                    </div>
                     <p className="text-xs opacity-70 mt-1">
                       Password must be at least 6 characters long
                     </p>

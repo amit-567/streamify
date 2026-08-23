@@ -1,14 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAuthUser from "../hooks/useAuthUser";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { completeOnboarding } from "../lib/api";
-import { LoaderIcon, MapPinIcon, ShipWheelIcon, ShuffleIcon } from "lucide-react";
+import { CameraIcon, LoaderIcon, MapPinIcon, ShipWheelIcon, ShuffleIcon, ArrowLeftIcon } from "lucide-react";
 import { LANGUAGES } from "../constants";
+import { Link, useNavigate } from "react-router-dom";
 
-const OnboardingPage = () => {
+import Avatar from "../components/Avatar";
+
+const OnboardingPage = ({ isEdit = false }) => {
   const { authUser } = useAuthUser();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const isEditMode = isEdit || Boolean(authUser?.isOnboarded);
 
   const [formState, setFormState] = useState({
     fullName: authUser?.fullName || "",
@@ -19,59 +25,78 @@ const OnboardingPage = () => {
     profilePic: authUser?.profilePic || "",
   });
 
+  useEffect(() => {
+    if (authUser) {
+      setFormState({
+        fullName: authUser.fullName || "",
+        bio: authUser.bio || "",
+        nativeLanguage: authUser.nativeLanguage || "",
+        learningLanguage: authUser.learningLanguage || "",
+        location: authUser.location || "",
+        profilePic: authUser.profilePic || "",
+      });
+    }
+  }, [authUser]);
+
   const { mutate: onboardingMutation, isPending } = useMutation({
     mutationFn: completeOnboarding,
     onSuccess: () => {
-      toast.success("Profile onboarded successfully");
+      toast.success(isEditMode ? "Profile updated successfully!" : "Profile onboarded successfully!");
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      if (isEditMode) {
+        navigate("/");
+      }
     },
 
     onError: (error) => {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Failed to update profile");
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     onboardingMutation(formState);
   };
 
   const handleRandomAvatar = () => {
-    const idx = Math.floor(Math.random() * 100) + 1; // 1-100 included
-    const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
+    const randomSeed = Math.random().toString(36).substring(2, 10);
+    const randomAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${randomSeed}`;
 
-    setFormState({ ...formState, profilePic: randomAvatar });
-    toast.success("Random profile picture generated!");
+    setFormState((prev) => ({ ...prev, profilePic: randomAvatar }));
+    toast.success("New random avatar generated!");
   };
 
   return (
     <div className="min-h-screen bg-base-100 flex items-center justify-center p-4">
       <div className="card bg-base-200 w-full max-w-3xl shadow-xl">
         <div className="card-body p-6 sm:p-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6">Complete Your Profile</h1>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold">
+              {isEditMode ? "Edit Profile" : "Complete Your Profile"}
+            </h1>
+            {isEditMode && (
+              <Link to="/" className="btn btn-ghost btn-sm gap-2">
+                <ArrowLeftIcon className="size-4" />
+                Back to Home
+              </Link>
+            )}
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* PROFILE PIC CONTAINER */}
             <div className="flex flex-col items-center justify-center space-y-4">
               {/* IMAGE PREVIEW */}
-              <div className="size-32 rounded-full bg-base-300 overflow-hidden">
-                {formState.profilePic ? (
-                  <img
-                    src={formState.profilePic}
-                    alt="Profile Preview"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <CameraIcon className="size-12 text-base-content opacity-40" />
-                  </div>
-                )}
+              <div className="size-32 rounded-full bg-base-300 overflow-hidden ring-4 ring-primary/20">
+                <Avatar
+                  src={formState.profilePic}
+                  name={formState.fullName || "User"}
+                  className="size-32 rounded-full"
+                />
               </div>
 
               {/* Generate Random Avatar BTN */}
               <div className="flex items-center gap-2">
-                <button type="button" onClick={handleRandomAvatar} className="btn btn-accent">
+                <button type="button" onClick={handleRandomAvatar} className="btn btn-accent btn-sm">
                   <ShuffleIcon className="size-4 mr-2" />
                   Generate Random Avatar
                 </button>
@@ -90,6 +115,7 @@ const OnboardingPage = () => {
                 onChange={(e) => setFormState({ ...formState, fullName: e.target.value })}
                 className="input input-bordered w-full"
                 placeholder="Your full name"
+                required
               />
             </div>
 
@@ -104,6 +130,7 @@ const OnboardingPage = () => {
                 onChange={(e) => setFormState({ ...formState, bio: e.target.value })}
                 className="textarea textarea-bordered h-24"
                 placeholder="Tell others about yourself and your language learning goals"
+                required
               />
             </div>
 
@@ -119,6 +146,7 @@ const OnboardingPage = () => {
                   value={formState.nativeLanguage}
                   onChange={(e) => setFormState({ ...formState, nativeLanguage: e.target.value })}
                   className="select select-bordered w-full"
+                  required
                 >
                   <option value="">Select your native language</option>
                   {LANGUAGES.map((lang) => (
@@ -139,6 +167,7 @@ const OnboardingPage = () => {
                   value={formState.learningLanguage}
                   onChange={(e) => setFormState({ ...formState, learningLanguage: e.target.value })}
                   className="select select-bordered w-full"
+                  required
                 >
                   <option value="">Select language you're learning</option>
                   {LANGUAGES.map((lang) => (
@@ -164,22 +193,22 @@ const OnboardingPage = () => {
                   onChange={(e) => setFormState({ ...formState, location: e.target.value })}
                   className="input input-bordered w-full pl-10"
                   placeholder="City, Country"
+                  required
                 />
               </div>
             </div>
 
             {/* SUBMIT BUTTON */}
-
             <button className="btn btn-primary w-full" disabled={isPending} type="submit">
               {!isPending ? (
                 <>
                   <ShipWheelIcon className="size-5 mr-2" />
-                  Complete Onboarding
+                  {isEditMode ? "Save Changes" : "Complete Onboarding"}
                 </>
               ) : (
                 <>
                   <LoaderIcon className="animate-spin size-5 mr-2" />
-                  Onboarding...
+                  {isEditMode ? "Saving..." : "Onboarding..."}
                 </>
               )}
             </button>
