@@ -20,7 +20,9 @@ export async function signup(req, res) {
       return res.status(400).json({ message: "Invalid email format" });
     }
 
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists, please use a diffrent one" });
     }
@@ -29,7 +31,7 @@ export async function signup(req, res) {
     const randomAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${randomSeed}`;
 
     const newUser = await User.create({
-      email,
+      email: normalizedEmail,
       fullName,
       password,
       profilePic: randomAvatar,
@@ -85,10 +87,11 @@ export async function login(req, res) {
     res.cookie("jwt", token, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: true, // prevent XSS attacks,
-      sameSite: "none", // allow cross‑origin cookie for both dev and prod
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
     });
 
+    console.log('Login: responding with success');
     res.status(200).json({ success: true, user });
   } catch (error) {
     console.log("Error in login controller", error.message);
