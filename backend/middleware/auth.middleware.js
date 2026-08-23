@@ -18,7 +18,9 @@ export const protectRoute = async (req, res, next) => {
       return res.status(401).json({ message: "Unauthorized - No token provided" });
     }
 
+    console.log('Auth middleware: received token', token);
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    console.log('Auth middleware: decoded payload', decoded);
 
     if (!decoded) {
       return res.status(401).json({ message: "Unauthorized - Invalid token" });
