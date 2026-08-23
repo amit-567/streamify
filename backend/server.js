@@ -41,7 +41,10 @@ app.get("/", (req, res) => {
   res.send("Streamify API is Running Correctly.");
 });
 
+// Connect to Database
+connectDB();
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  connectDB();
 });
+
