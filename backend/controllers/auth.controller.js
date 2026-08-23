@@ -48,6 +48,10 @@ export async function signup(req, res) {
       console.log("Error creating Stream user:", error);
     }
 
+    if (!process.env.JWT_SECRET_KEY) {
+      console.error('JWT secret not configured');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET_KEY, {
       expiresIn: "7d",
     });
@@ -55,8 +59,8 @@ export async function signup(req, res) {
     res.cookie("jwt", token, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: true, // prevent XSS attacks,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      secure: process.env.NODE_ENV === "production",
+            sameSite: "none",
+      secure: true,
     });
 
     res.status(201).json({ success: true, user: newUser });
@@ -80,6 +84,10 @@ export async function login(req, res) {
     const isPasswordCorrect = await user.matchPassword(password);
     if (!isPasswordCorrect) return res.status(401).json({ message: "Invalid email or password" });
 
+    if (!process.env.JWT_SECRET_KEY) {
+      console.error('JWT secret not configured');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
       expiresIn: "7d",
     });
@@ -87,8 +95,8 @@ export async function login(req, res) {
     res.cookie("jwt", token, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: true, // prevent XSS attacks,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      secure: true,
     });
 
     console.log('Login: responding with success');
